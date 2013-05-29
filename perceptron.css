@@ -1,0 +1,162 @@
+/* ------------------------------------------ */
+/* 1. RESETS BASICS */
+/* ------------------------------------------ */
+* { margin: 0; padding: 0; }
+body { font-family: Lato, Helvetica, sans-serif; }
+h1 {font-weight: normal; padding-bottom: 10px;}
+ul { list-style: none inside; }
+p { font: 1.3em/1.3em; margin-bottom: 1.3em; }
+a { outline: none; }
+a img { border: none; }
+::-webkit-scrollbar { width: 10px; height: 10px; background: #FFFFFF; }
+::-webkit-scrollbar-track { -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); .round(10px); }
+::-webkit-scrollbar-thumb { -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); .round(10px); background: @colorTheme;}
+
+/* ------------------------------------------ */
+/* 2. PAGE CONTAINER */
+/* ------------------------------------------ */
+html, body {
+	min-height:100%;
+	font-size: 15px;
+	min-width: 500px;
+}
+
+h1 {
+	font-weight: lighter;
+	font-size: 37px;
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+
+canvas {
+	width: 100%;
+	height: 500px;
+	margin: 0 auto 15px auto;
+	border: 1px solid #ccc;
+	border-bottom-color: #b3b3b3;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+	-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+}
+
+button {
+	display: inline-block;
+	padding: 4px 12px;
+	font-size: 13px;
+	margin-top: 15px;
+	line-height: 18px;
+	text-align: center;
+	border: 1px solid #ccc;
+	border-bottom-color: #b3b3b3;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+	-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+button:hover {
+	background: #2a79A3;
+	color: #FFF;
+}
+
+.header {
+	font-weight: lighter;
+	font-size: 45px;
+	text-align: right;	
+}
+
+.center {
+	margin: 0 auto;
+	text-align: center;
+}
+
+.container {
+	color: #333;
+	background: #eee;
+	height: 100%;
+}
+
+.content {
+	padding-top: 2%;
+	width: 80%;
+	margin: 0 auto;
+}
+
+.content-block {
+	background: white;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-ms-border-radius: 5px;
+	-o-border-radius: 5px;
+	border-radius: 5px;
+	margin: 0 auto 40px auto;
+	padding: 10px 20px 20px 20px;
+}
+
+.content-block div {
+	margin-top: 10px;	
+}
+
+.success {
+	background: #51a351;
+	color: #fff;
+}
+
+.error {
+	background: #DA4E49;
+	color: #FFF;
+}
+
+.mark-text { 
+	color: #2fa0bb;
+}
+
+/* ------------------------------------------ */
+/* 3. PAGE FORMS */
+/* ------------------------------------------ */
+.control-label {
+	float: left;
+	width: 100px;
+	padding-top: 5px;
+	text-align: right;	
+}
+
+.controls {
+	margin-left: 120px;	
+}
+
+.help-block {
+	display: block;
+	margin-top: 9px;
+}
+
+.input-large {
+	display: inline-block;
+	height: 18px;
+	width: 270px;
+	padding: 4px 6px;
+	line-height: 18px;
+	color: #555;
+	margin-bottom: 0;
+	vertical-align: middle;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+	-moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+	-webkit-transition: border linear 0.2s,box-shadow linear 0.2s;
+	-moz-transition: border linear 0.2s,box-shadow linear 0.2s;
+	-o-transition: border linear 0.2s,box-shadow linear 0.2s;
+	transition: border linear 0.2s,box-shadow linear 0.2s;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
