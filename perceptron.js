@@ -31,31 +31,112 @@ var PerceptronClass = function Perceptron (){
 		dimensions: 2,
 		//Theta value of the neuron.
 		theta : 0,
-		weights : new Array(),
+		weights : new Array (),
 		perceptronTraining : {
-			//Gamma value that representr the learning reason
+			//Gamma value that represents the learning reason
 			learningReason : 1,
 			maxIterations : 100,
-			trainingSet : {
-				
+			trainingSets : new Array (),
+			expectedGroupOutputs :new Array(),
+			neuralFunction : false,
+			train : function () {
+				//The initial iteration is 0
+				var currentIteration = 0;
+				var maxValuesToCheck = 0;
+				//Get the max number of points to check
+				for (var i = 0; i < self.perceptronTraining.trainingSets.length; i++){
+					maxValuesToCheck += self.perceptronTraining.trainingSets[i].length;
+				}
+				//Set the current values to the max possible
+				var currentValuesToCheck = maxValuesToCheck;
+				//Start checking all the values to see if they belong to the correct
+				//group
+				var position = 0;
+				var group = 0;
+				for (; currentIteration < self.perceptronTraining.maxIterations && currentValuesToCheck > 0; currentValuesToCheck--){
+					//Get the training set
+					var groupSet = self.perceptronTraining.trainingSets[group];
+					//Perform the calculus of the impulse
+					var impulse = self.perceptronTraining.weightOperation(groupSet[position]);
+					//Check the output of the neuron to check the group it belongs to
+					if (! self.perceptronTraining.expectedGroupOutputs[group] == self.perceptronTraining.neuralFunction.runCalculus(impulse)){
+						//Adjust the neuron weights
+						self.perceptronTraining.adjust(groupSet[position] ,self.perceptronTraining.expectedGroupOutputs[group]);
+						//Notify the user interface
+						self.notify();
+						//Reset the counter
+						currentValuesToCheck = maxValuesToCheck;
+					}
+					//Increment index
+					position++;
+					if (position >= self.perceptronTraining.trainingSets.length()){
+						group = (group + 1) % self.dimensions;
+						position = 0;
+					}
+				}
 			},
-			train : function(){
-				
+			adjust : function (point, expectedOutput) {
+				self.weights[0] += self.weights[0] * expectedOutput * point.x;
+				self.weights[1] += self.weights[1] * expectedOutput * point.y;
+				self.theta += self.theta * expectedOutput * (-1);
+			},
+			weightOperation : function (point) {
+				return point.x * self.weights[0] + point.y * self.weights[1] + self.theta * -1;
 			}
 		},
-		init : function (){
+		/**
+		 * Initialize the perceptron object.
+		 */
+		init : function () {
 			//Do back reference to get the reference to javascript literal object. Now every literal can access it.
 			self = this;
-			// Initialize the weights with random values
+			// Initialize the weights with random values and the pointsets
 			for (var i = 0; i < self.dimensions; i++){
 				self.weights.push(Math.random());
+				self.perceptronTraining.trainingSets.push(new self.classes.PointSet());
 			}
 			//Initialize theta value
 			theta = Math.random();
+			//Initialize neural function
+			self.perceptronTraining.neuralFunction = new self.classes.NeuralFunction( function (perceptronResponse) {
+				if(perceptronResponse >= 0) return 1; //Greater or equal to 0 belongs to first group
+				else return -1; //Less than 0 belongs to second group
+			});
+			//Initialize expected group outputs
+			self.perceptronTraining.expectedGroupOutputs.push(-1);
+			self.perceptronTraining.expectedGroupOutputs.push(1);
+			//Initialize expected outputs
 			return self;
 		},
-		train: function(){
-			this.perceptronTraining.train();
+		/**
+		 * Performs the training process of the neural network.
+		 * It is a shortcut fot perceptronTraining.
+		 */
+		train: function () {
+			self.perceptronTraining.train();
+		},
+		/**
+		 * Adds a new point to the training set.
+		 * @param point The point to add.
+		 * @param trainingSetIndex On which training set it will be added.
+		 */
+		addPointToTrainingSet : function(point, trainingSetIndex){
+			self.perceptronTraining.trainingSets[trainingSetIndex].addPoint(point);
+		},
+		/**
+		 * Removes a new point to the training set.
+		 * @param point The point to remove.
+		 * @param trainingSetIndex From which training set it will be removed.
+		 */
+		removePointFromTrainingSet : function(point, trainingSetIndex){
+			self.perceptronTraining.trainingSets[trainingSetIndex].removePoint(point);
+		},
+		/**
+		 * Notifies the change of the training values to the user interface and 
+		 * whatever interested on it.
+		 */
+		notify : function(){
+			//TODO Implement here the UI interface changes the values are not the same.
 		},
 		/********************************************
 		 * FUNCTION (CLASSES) 
@@ -63,32 +144,24 @@ var PerceptronClass = function Perceptron (){
 		classes: {
 			/**
 			 * Neural function that returns true if the value is greater than 0 and false if not.
+			 * Implements an strategy pattern to make simpler the function change.
 			 * @param neuralFunction A neural function is a function that receives one parameter as the 
 			 * perceptron response and returns the value that represents the group that this value
 			 * belongs to.
 			 * @param return The group of the value returned by the perceptron.
 			 */
-			NeuralFunction : function (neuralFunction){
-				return neuralResponse >= 0;
+			NeuralFunction : function (neuralFunction) {
+				var that = this;
+				this.calculus = neuralFunction;
+				this.runCalculus = function (perceptronResponse){
+					return this.calculus(perceptronResponse);
+				};
 			},
 			/**
 			 * Class that represents a set of points.
 			 */
-			PointSet : function () {
+			PointSet : function (expectedNeuralOutput) {
 				this.points = new Array();
-				/**
-				 * Checks if the given point belongs to the point set.
-				 * @param point The Point that will be checked.
-				 * @return True if the point belongs to the set.
-				 */
-				this.belongsTo = function(point){
-					for (var i = 0; i < this.points.length; i++) {
-				        if (this.points[i] === point) {
-				            return true;
-				        }
-				    }
-				    return false;
-				};
 				/**
 				 * Adds a point to the point set.
 				 * @param point The Point to add to the point set.
@@ -121,4 +194,6 @@ var PerceptronClass = function Perceptron (){
 	//Automatically call init
 	}.init();
 };
-var Perceptron = new PerceptronClass();
+
+//Create perceptron var with class perceptron (PerceptronClass contains Perceptron function what is initialized).
+var Perceptron = new PerceptronClass().train();
