@@ -193,6 +193,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 					//group
 					var position = 0;
 					var group = 0;
+					var decrementLearningReason = this.learningReason/this.maxIterations;
 					Perceptron.notify();
 					for (; currentIteration < this.maxIterations && currentValuesToCheck > 0; currentValuesToCheck--){
 						//Get the training set
@@ -213,7 +214,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 						if (position >= groupSet.length){
 							group = (group + 1) % Perceptron.dimensions;
 							position = 0;
-							if(group == 0){currentIteration++;}
+							if(group == 0){
+								currentIteration++;
+								this.learningReason -= decrementLearningReason;
+							}
 						}
 					}
 				};
