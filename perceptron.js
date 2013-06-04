@@ -26,7 +26,7 @@ THE SOFTWARE.  **/
  * The perceptron class can adjust the weights to solve de splitting (in two groups)
  * problem.
  */
-var PerceptronClass = function Perceptron (idCanvas){
+var PerceptronClass = function Perceptron (idCanvas, queueSpeed){
 	var Perceptron = {
 		//The id of the canvas element
 		canvasId: idCanvas,
@@ -40,6 +40,8 @@ var PerceptronClass = function Perceptron (idCanvas){
 		weights : new Array (),
 		//The perceptron trainning instance
 		perceptronTraining: false,
+		//The speed used by the function queue
+		iterationSpeed : queueSpeed,
 		/**
 		 * Initialize the perceptron object.
 		 */
@@ -73,7 +75,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * Performs the training process of the neural network.
 		 * It is a shortcut fot perceptronTraining.
 		 */
-		train: function (learningReason, maxIterations) {
+		train: function (learningReason, maxIterations, speed) {
 			if(learningReason > 1 || learningReason < 0){
 				PerceptronHelper.showError("El valor de aprendizaje ha de estar en el intervalo [0,1]");
 				return this;
@@ -81,6 +83,12 @@ var PerceptronClass = function Perceptron (idCanvas){
 			if(maxIterations <= 0){
 				PerceptronHelper.showError("El número máximo de iteraciones ha de ser mayor que 0");
 				return this;
+			}
+			if(speed < 50 || speed > 500){
+				PerceptronHelper.showError("La velocidad debe estar en milisegundos entre 50 y 500");
+				return this;
+			}else{
+				this.iterationSpeed = speed;
 			}
 			PerceptronHelper.cleanError();
 			PerceptronHelper.smoothScroll('results');
@@ -133,7 +141,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 				this.canvas.initScale();
 				this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
 				this.canvas.drawFunction(values);
-			}, this);
+			}, this, this.iterationSpeed);
 		},
 		queue : {
 		    timer: null,
@@ -576,10 +584,15 @@ var PerceptronHelperClass = function () {
 				setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
 				leapY -= step; if (leapY < stopY) leapY = stopY; timer++;
 			}
+		},
+		run: function (){
+			Perceptron.train(document.getElementById('learningIndex').value, 
+					document.getElementById('iterationNumber').value, 
+					document.getElementById('speed').value);
 		}
 	};
 };
 
 //Create perceptron var with class perceptron (PerceptronClass contains Perceptron function what is initialized).
-var Perceptron = new PerceptronClass("paint-panel");
+var Perceptron = new PerceptronClass("paint-panel", 100);
 var PerceptronHelper = new PerceptronHelperClass();

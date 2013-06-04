@@ -79,8 +79,17 @@
 								</span>
 							</div>
 						</div>
+						<div class="control-block">
+							<label class="control-label">Velocidad de iteraciones</label>
+							<div class="controls">
+								<input id="speed" class="input-large" value="100" min="50" max="500" type="number">
+								<span class="help-block">
+									Permite modificar la velocidad (en milisegundos) que tarda en ejecutar el perceptrón cada iteración
+								</span>
+							</div>
+						</div>
 					</div>
-					<button id="runButton" class="success" onclick="Perceptron.train(document.getElementById('learningIndex').value,document.getElementById('iterationNumber').value);">Entrenar perceptrón</button>
+					<button id="runButton" class="success" onclick="PerceptronHelper.run();">Entrenar perceptrón</button>
 					<button id="stopButton" class="error" onclick="Perceptron.stopTrain();" disabled>Detener entrenamiento</button>
 				</div>
 				
