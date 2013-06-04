@@ -74,6 +74,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * It is a shortcut fot perceptronTraining.
 		 */
 		train: function () {
+			PerceptronHelper.smoothScroll('results');
 			this.perceptronTraining.train();
 			return this;
 		},
@@ -462,6 +463,47 @@ var PerceptronHelperClass = function () {
 			var error = document.getElementById("errorMsg");
 			error.innerText = "";
 			error.style.display = "none";
+		},
+		currentYPosition: function() {
+			if (self.pageYOffset)
+				 return self.pageYOffset;
+			if (document.documentElement && document.documentElement.scrollTop)
+				return document.documentElement.scrollTop;
+			if (document.body.scrollTop)
+				 return document.body.scrollTop;
+			return 0;
+		},
+		elmYPosition: function(eID) {
+			var elm  = document.getElementById(eID);
+			var y    = elm.offsetTop;
+			var node = elm;
+			while (node.offsetParent && node.offsetParent != document.body) {
+				node = node.offsetParent;
+				y   += node.offsetTop;
+			} return y;
+		},
+		smoothScroll: function(eID) {
+			var startY   = this.currentYPosition();
+			var stopY    = this.elmYPosition(eID);
+			var distance = stopY > startY ? stopY - startY : startY - stopY;
+			if (distance < 100) {
+				scrollTo(0, stopY); return;
+			}
+			var speed = Math.round(distance / 100);
+			if (speed >= 20) speed = 20;
+			var step  = Math.round(distance / 25);
+			var leapY = stopY > startY ? startY + step : startY - step;
+			var timer = 0;
+			if (stopY > startY) {
+				for ( var i=startY; i<stopY; i+=step ) {
+					setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
+					leapY += step; if (leapY > stopY) leapY = stopY; timer++;
+				} return;
+			}
+			for ( var i=startY; i>stopY; i-=step ) {
+				setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
+				leapY -= step; if (leapY < stopY) leapY = stopY; timer++;
+			}
 		}
 	};
 };
