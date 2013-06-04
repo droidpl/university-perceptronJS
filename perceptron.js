@@ -99,9 +99,11 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
-			this.canvas.initScale();
-			this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
-			this.canvas.drawFunction();
+			setTimeout(new this.classes.Proxy(this, function(){
+				this.canvas.initScale();
+				this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
+				this.canvas.drawFunction();
+			}), 500);
 		},
 		/********************************************
 		 * FUNCTION (CLASSES) 
