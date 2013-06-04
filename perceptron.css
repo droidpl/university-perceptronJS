@@ -29,8 +29,6 @@ h1 {
 }
 
 canvas {
-	width: 100%;
-	height: 450px;
 	margin: 0 auto 15px auto;
 	border: 1px solid #ccc;
 	border-bottom-color: #b3b3b3;
