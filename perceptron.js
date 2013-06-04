@@ -88,6 +88,16 @@ var PerceptronClass = function Perceptron (idCanvas){
 			this.perceptronTraining.train(learningReason, maxIterations);
 			return this;
 		},
+		stopTrain : function (){
+			this.queue.clear();
+			this.toggleButtons();
+		},
+		toggleButtons : function () {
+			var run = document.getElementById("runButton");
+			var stop = document.getElementById("stopButton");
+			run.disabled ? run.disabled = false : run.disabled = true;
+			stop.disabled ? stop.disabled = false : stop.disabled = true;
+		},
 		/**
 		 * Adds a new point to the training set.
 		 * @param point The point to add.
@@ -237,6 +247,8 @@ var PerceptronClass = function Perceptron (idCanvas){
 				this.currentIteration = 0;
 				//Train the data of the perceptron
 				this.train = function (learningReason, maxIterations) {
+					//Tooggle the buttons
+					Perceptron.toggleButtons();
 					//Set input parameters
 					this.learningReason = learningReason;
 					this.maxIterations = maxIterations;
@@ -262,10 +274,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 						var impulse = this.weightOperation(groupSet[position]);
 						//Check the output of the neuron to check the group it belongs to
 						if (this.expectedGroupOutputs[group] != this.neuralFunction.runCalculus(impulse)){
-								//Adjust the neuron weights
-								this.adjust(groupSet[position], this.expectedGroupOutputs[group]);
-								//Reset the counter
-								currentValuesToCheck = maxValuesToCheck + 1;
+							//Adjust the neuron weights
+							this.adjust(groupSet[position], this.expectedGroupOutputs[group]);
+							//Reset the counter
+							currentValuesToCheck = maxValuesToCheck + 1;
 						}
 						//Increment index
 						position++;
@@ -278,6 +290,8 @@ var PerceptronClass = function Perceptron (idCanvas){
 							position = 0;
 						}
 					}
+					//Add toggle buttons to queue
+					Perceptron.queue.add(Perceptron.toggleButtons);
 				};
 				this.adjust = function (point, expectedOutput) {
 					for (var i = 0; i < point.length; i++){
