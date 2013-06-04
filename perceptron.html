@@ -28,15 +28,16 @@
 					
 					<div class="control-group">
 						<h1>Datos de control</h1>
+						<div id="errorMsg" class="bubble-error"></div>
 						<div class="control-block">
 							<label class="control-label">Intervalo en el eje X</label>
 							<div class="controls">
 								<input id="minX" class="input-large" value="-10" step="1" type="number">
 								<input id="maxX" class="input-large" value="10" step="1" type="number">
 								<span class="help-block">
-									Especifica el nuevo intervalo en el eje X. El eje Y se recalculará dependiendo del eje X.
+									Especifica el nuevo intervalo en el eje X [minX, maxX]. El eje Y se recalculará dependiendo del eje X.
 								</span>
-								<button class="success" onclick="Perceptron.canvas.initScale();">Recalcular gráfica</button>
+								<button class="success" onclick="PerceptronHelper.checkScale();">Recalcular gráfica</button>
 							</div>
 						</div>
 						<div class="control-block">

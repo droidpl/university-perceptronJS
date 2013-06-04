@@ -99,8 +99,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
-			this.canvas.reset();
-			this.canvas.drawAxes();
+			this.canvas.initScale();
 			this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
 			this.canvas.drawFunction();
 		},
@@ -275,6 +274,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 				};
 				//Draw the axes X and Y of the canvas
 				this.drawAxes = function() {
+					this.reset();
 					this.ctx.save() ;
 					this.ctx.lineWidth = 2 ;
 					// +Y axis
@@ -415,7 +415,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 						return false;
 					}, false);
 					this.ctx = this.canvas.getContext('2d');
-					this.initScale();
+					Perceptron.notify();
 				};
 				//Init function
 				this.initScale = function () {
@@ -432,5 +432,33 @@ var PerceptronClass = function Perceptron (idCanvas){
 	return Perceptron;
 };
 
+var PerceptronHelperClass = function () {
+	return {
+		checkScale : function(){
+			var minX = document.getElementById("minX");
+			var maxX = document.getElementById("maxX");
+			if (parseInt(minX.value) < parseInt(maxX.value)){
+				Perceptron.canvas.minX = parseInt(minX.value);
+				Perceptron.canvas.maxX = parseInt(maxX.value);
+				Perceptron.notify();
+				this.cleanError();
+			}else{
+				this.showError("El valor mínimo del intervalo debe ser mayor que el máximo.");
+			}
+		},
+		showError : function (errorMessage) {
+			var error = document.getElementById("errorMsg");
+			error.innerText = errorMessage;
+			error.style.display = "block";
+		},
+		cleanError : function () {
+			var error = document.getElementById("errorMsg");
+			error.innerText = "";
+			error.style.display = "none";
+		}
+	};
+};
+
 //Create perceptron var with class perceptron (PerceptronClass contains Perceptron function what is initialized).
 var Perceptron = new PerceptronClass("paint-panel");
+var PerceptronHelper = new PerceptronHelperClass();
