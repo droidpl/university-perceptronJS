@@ -98,6 +98,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
+			alert("notify");
 			canvas.reset();
 			canvas.drawAxes();
 			canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
@@ -145,6 +146,18 @@ var PerceptronClass = function Perceptron (idCanvas){
 						this.points.splice(index, 1);
 					}
 				};
+				/**
+				 * Check if the set contains a points.
+				 * @param point The Point to check if it is in the set
+				 */
+				this.contains = function (point){
+					for(var i = 0; i<this.points.length; i++){
+						if(this.points[i].coordinates[0] == point.coordinates[0] && this.points[i].coordinates[1] == point.coordinates[1]){
+							return true;
+						}
+					}
+					return false;
+				};
 			},
 			/**
 			 * Point class that defines a canvas point.
@@ -176,7 +189,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 					var maxValuesToCheck = 0;
 					//Get the max number of points to check
 					for (var i = 0; i < parent.trainingSets.length; i++){
-						maxValuesToCheck += parent.trainingSets[i].length;
+						maxValuesToCheck += parent.trainingSets[i].points.length;
 					}
 					//Set the current values to the max possible
 					var currentValuesToCheck = maxValuesToCheck;
@@ -372,18 +385,20 @@ var PerceptronClass = function Perceptron (idCanvas){
 					var x = Math.round((((e.clientX - rect.left)*(this.maxX - this.minX)/this.width + this.minX)));
 					var y = Math.round(-1*(e.clientY -rect.top)*(this.maxY - this.minY)/this.height + this.maxY);
 					var point = new Perceptron.classes.Point(new Array(x,y));
-					switch (event.which) {
-					 	case 1: //Left button
-							Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],0);
-							Perceptron.addPointToTrainingSet(point,0);
-		                    break;
-		                case 2: //Middle button
-		                    break;
-		                case 3://Right button
-							Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],1);
-							Perceptron.addPointToTrainingSet(point,1);
-		                    break;
-		             }
+					if(!(Perceptron.perceptronTraining.trainingSets[0].contains(point) || Perceptron.perceptronTraining.trainingSets[1].contains(point))){
+						switch (event.which) {
+						 	case 1: //Left button
+								Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],0);
+								Perceptron.addPointToTrainingSet(point,0);
+			                    break;
+			                case 2: //Middle button
+			                    break;
+			                case 3://Right button
+								Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],1);
+								Perceptron.addPointToTrainingSet(point,1);
+			                    break;
+			             }
+					}
 				};
 				//Initialize the canvas when the document is ready
 				this.onload = function () {
@@ -410,4 +425,4 @@ var PerceptronClass = function Perceptron (idCanvas){
 };
 
 //Create perceptron var with class perceptron (PerceptronClass contains Perceptron function what is initialized).
-var Perceptron = new PerceptronClass("paint-panel").train();
+var Perceptron = new PerceptronClass("paint-panel");
