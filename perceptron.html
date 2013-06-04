@@ -29,6 +29,14 @@
 						<div class="controls">
 							<span class="help-block" id="theta">✕</span>
 						</div>
+						<label class="control-label">&gamma;</label>
+						<div class="controls">
+							<span class="help-block" id="gamma">✕</span>
+						</div>
+						<label class="control-label">Iteración actual</label>
+						<div class="controls">
+							<span class="help-block" id="iteration">✕</span>
+						</div>
 					</div>
 				</div>
 				
@@ -53,7 +61,7 @@
 							</div>
 						</div>
 						<div class="control-block">
-							<label class="control-label">&delta; Aprendizaje inicial</label>
+							<label class="control-label">&gamma; Aprendizaje inicial</label>
 							<div class="controls">
 								<input id="learningIndex" class="input-large" value="1" min="0" max="1" step="0.01" type="number">
 								<span class="help-block">
@@ -72,8 +80,8 @@
 							</div>
 						</div>
 					</div>
-					<button class="success" onclick="Perceptron.train(document.getElementById('learningIndex').value,document.getElementById('iterationNumber').value);">Entrenar perceptrón</button>
-					<button id="stopButton" class="error" onclick="Perceptron.stopTrain();"disabled>Detener entrenamiento</button>
+					<button id="runButton" class="success" onclick="Perceptron.train(document.getElementById('learningIndex').value,document.getElementById('iterationNumber').value);">Entrenar perceptrón</button>
+					<button id="stopButton" class="error" onclick="Perceptron.stopTrain();" disabled>Detener entrenamiento</button>
 				</div>
 				
 				<h1 class="mark-text">Autores</h1>
