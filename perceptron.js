@@ -65,7 +65,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 			}
 			//Initialize theta value
 			this.theta = Math.random();
-
+			
 			//Initialize expected outputs
 			return this;
 		},
@@ -98,10 +98,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
-			canvas.reset();
-			canvas.drawAxes();
-			canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
-			canvas.drawFunction();
+			this.canvas.reset();
+			this.canvas.drawAxes();
+			this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
+			this.canvas.drawFunction();
 		},
 		/********************************************
 		 * FUNCTION (CLASSES) 
@@ -157,9 +157,6 @@ var PerceptronClass = function Perceptron (idCanvas){
 			},
 			PerceptronTraining : function (expectedOutputs, neuralFunction) {
 				//Gamma value that represents the learning reason
-				//Store the parent
-				var parent = this;
-				//Gamma variable
 				this.learningReason = 1;
 				//Max number of iterations
 				this.maxIterations = 100;
@@ -175,8 +172,8 @@ var PerceptronClass = function Perceptron (idCanvas){
 					var currentIteration = 0;
 					var maxValuesToCheck = 0;
 					//Get the max number of points to check
-					for (var i = 0; i < parent.trainingSets.length; i++){
-						maxValuesToCheck += parent.trainingSets[i].length;
+					for (var i = 0; i < this.trainingSets.length; i++){
+						maxValuesToCheck += this.trainingSets[i].points.length;
 					}
 					//Set the current values to the max possible
 					var currentValuesToCheck = maxValuesToCheck;
@@ -184,15 +181,16 @@ var PerceptronClass = function Perceptron (idCanvas){
 					//group
 					var position = 0;
 					var group = 0;
-					for (; currentIteration < parent.maxIterations && currentValuesToCheck > 0; currentValuesToCheck--){
+					Perceptron.notify();
+					for (; currentIteration < this.maxIterations && currentValuesToCheck > 0; currentValuesToCheck--){
 						//Get the training set
-						var groupSet = parent.trainingSets[group];
+						var groupSet = this.trainingSets[group].points;
 						//Perform the calculus of the impulse
-						var impulse = parent.weightOperation(groupSet[position]);
+						var impulse = this.weightOperation(groupSet[position]);
 						//Check the output of the neuron to check the group it belongs to
-						if (! parent.expectedGroupOutputs[group] == parent.neuralFunction.runCalculus(impulse)){
+						if (this.expectedGroupOutputs[group] != this.neuralFunction.runCalculus(impulse)){
 							//Adjust the neuron weights
-							parent.adjust(groupSet[position], parent.expectedGroupOutputs[group]);
+							this.adjust(groupSet[position], this.expectedGroupOutputs[group]);
 							//Notify the user interface
 							Perceptron.notify();
 							//Reset the counter
@@ -200,7 +198,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 						}
 						//Increment index
 						position++;
-						if (position >= parent.trainingSets.length()){
+						if (position >= groupSet.length){
 							group = (group + 1) % Perceptron.dimensions;
 							position = 0;
 						}
@@ -217,7 +215,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 					var result = 0;
 					for (var i = 0; i < point.length; i++)
 						result += point.coordinates[i] * Perceptron.weights[i];
-					reuslt += Perceptron.theta * -1;
+					result += Perceptron.theta * -1;
 					return result;
 				};
 			},
@@ -319,8 +317,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 				};
 				//Draw the training set in the canvas
 				this.drawTrainingSet = function (trainingSets) {
-					for(var i=0; i<trainigSets.length; i++){
-						drawPoint(trainigSets[i][0],trainigSets[i][1]);
+					for (var i = 0; i < trainingSets.length; i++){
+						for(var j = 0; j < trainingSets[i].points.length; j++){
+							this.drawPoint(trainingSets[i].points[j].coordinates[0],trainingSets[i].points[j].coordinates[1], i);
+						}
 					}
 				};
 				//Draw point
@@ -353,7 +353,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 					var first = true;
 					//Horizontal distance between points
 					var XSTEP = (this.maxX-this.minX)/this.width ;
-					
+					this.ctx.fillStyle = '#a83f'; // black
 					this.ctx.beginPath() ;
 					for (var x = this.minX; x <= this.maxX; x += XSTEP) {
 						var y = Perceptron.perceptronTraining.weightOperation(x) ;
@@ -396,6 +396,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 						return false;
 					}, false);
 					this.ctx = this.canvas.getContext('2d');
+					this.initScale();
+				};
+				//Init function
+				this.initScale = function () {
 					this.width = this.canvas.width;
 					this.height = this.canvas.height;
 					this.maxY = this.maxX * this.height / this.width;
@@ -410,4 +414,4 @@ var PerceptronClass = function Perceptron (idCanvas){
 };
 
 //Create perceptron var with class perceptron (PerceptronClass contains Perceptron function what is initialized).
-var Perceptron = new PerceptronClass("paint-panel").train();
+var Perceptron = new PerceptronClass("paint-panel");
