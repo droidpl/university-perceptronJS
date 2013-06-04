@@ -73,9 +73,19 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * Performs the training process of the neural network.
 		 * It is a shortcut fot perceptronTraining.
 		 */
-		train: function () {
+		train: function (learningReason, maxIterations) {
+			if(learningReason > 1 || learningReason < 0){
+				PerceptronHelper.showError("El valor de aprendizaje ha de estar en el intervalo [0,1]");
+				return this;
+			}
+			if(maxIterations <= 0){
+				PerceptronHelper.showError("El número máximo de iteraciones ha de ser mayor que 0");
+				return this;
+			}
+			PerceptronHelper.cleanError();
 			PerceptronHelper.smoothScroll('results');
-			this.perceptronTraining.train();
+			var button = document.getElementById("stopButton");
+			this.perceptronTraining.train(learningReason, maxIterations);
 			return this;
 		},
 		/**
@@ -99,6 +109,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
+			PerceptronHelper.resetResultValues(this.weights[0],this.weights[1], this.theta);
 			var that = this;
 			setTimeout(function(){
 				that.canvas.initScale();
@@ -182,7 +193,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 				//The neural function
 				this.neuralFunction = neuralFunction,
 				//Train the data of the perceptron
-				this.train = function () {
+				this.train = function (learningReason, maxIterations) {
+					//Set input parameters
+					this.learningReason = learningReason;
+					this.maxIterations = maxIterations;
 					//The initial iteration is 0
 					var currentIteration = 0;
 					var maxValuesToCheck = 0;
@@ -397,7 +411,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 					var y = Math.round(-1*(e.clientY -rect.top)*(this.maxY - this.minY)/this.height + this.maxY);
 					var point = new Perceptron.classes.Point(new Array(x,y));
 					if(!(Perceptron.perceptronTraining.trainingSets[0].contains(point) || Perceptron.perceptronTraining.trainingSets[1].contains(point))){
-						switch (event.which) {
+						switch (e.which) {
 						 	case 1: //Left button
 								Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],0);
 								Perceptron.addPointToTrainingSet(point,0);
@@ -463,6 +477,11 @@ var PerceptronHelperClass = function () {
 			var error = document.getElementById("errorMsg");
 			error.innerText = "";
 			error.style.display = "none";
+		},
+		resetResultValues : function(omega1, omega2, theta){
+			document.getElementById("omega1").innerHTML = omega1;
+			document.getElementById("omega2").innerHTML = omega2;
+			document.getElementById("theta").innerHTML = theta;
 		},
 		currentYPosition: function() {
 			if (self.pageYOffset)

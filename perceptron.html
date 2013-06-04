@@ -19,15 +19,15 @@
 					<div class="result-block">
 						<label class="control-label">Peso 1 (&omega;1)</label>
 						<div class="controls">
-							<span class="help-block">✕</span>
+							<span class="help-block" id="omega1">✕</span>
 						</div>
-						<label class="control-label">Peso 2 (&omega;2)</label>
+						<label class="control-label" >Peso 2 (&omega;2)</label>
 						<div class="controls">
-							<span class="help-block">✕</span>
+							<span class="help-block" id="omega2">✕</span>
 						</div>
 						<label class="control-label">&theta;</label>
 						<div class="controls">
-							<span class="help-block">✕</span>
+							<span class="help-block" id="theta">✕</span>
 						</div>
 					</div>
 				</div>
@@ -72,7 +72,7 @@
 							</div>
 						</div>
 					</div>
-					<button class="success" onclick="Perceptron.train();">Entrenar perceptrón</button>
+					<button class="success" onclick="Perceptron.train(document.getElementById('learningIndex').value,document.getElementById('iterationNumber').value);">Entrenar perceptrón</button>
 					<button id="stopButton" class="error" onclick="Perceptron.stopTrain();"disabled>Detener entrenamiento</button>
 				</div>
 				
