@@ -283,18 +283,33 @@ var PerceptronClass = function Perceptron (idCanvas){
 				this.maxY = 0;
 				// Returns the bottom boundary of the logical viewport
 				this.minY = 0;
-				// Returns the physical x-coordinate of a logical x-coordinate
+				/**
+				 * Return the x coordinate to draw in the canvas from the x coordinate in 
+				 * the [minX, maxX] set
+				 * @param x The coordinate in [minX,maxX] set to draw in the canvas
+				 * @return The coordinate x in the canvas to draw
+				 */
 				this.xRealCoord = function(x) {
 					return (x - this.minX) / (this.maxX - this.minX) * this.width ;
 				};
+				/**
+				 * Return the y coordinate to draw in the canvas from the y coordinate in 
+				 * the [minY, maxY] set
+				 * @param y The coordinate in [minY,maxY] set to draw in the canvas
+				 * @return The coordinate y in the canvas to draw
+				 */
 				this.yRealCoord = function(y) {
 					return this.height - (y - this.minY) / (this.maxY - this.minY) * this.height ;
 				};
-				//Reset the canvas
+				/**
+				 * Clean the canvas
+				 */
 				this.reset = function () {
 					this.ctx.clearRect(0,0,this.width,this.height) ;
 				};
-				//Draw the axes X and Y of the canvas
+				/**
+				 * Draw the X and Y axes in the canvas
+				 */
 				this.drawAxes = function() {
 					this.ctx.save() ;
 					this.ctx.lineWidth = 2 ;
@@ -317,7 +332,8 @@ var PerceptronClass = function Perceptron (idCanvas){
 						this.ctx.lineTo(this.xRealCoord(0) + 5,this.yRealCoord(i * this.yUnitary)) ;
 						this.ctx.stroke() ;  
 					}
-
+					
+					// -Y axis tick marks
 					for (var i = 1; (i * this.yUnitary) > this.minY ; --i) {
 						this.ctx.beginPath() ;
 						this.ctx.moveTo(this.xRealCoord(0) - 5,this.yRealCoord(i * this.yUnitary)) ;
@@ -345,6 +361,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 						this.ctx.stroke() ;  
 					}
 
+					// -X tick marks
 					for (var i = 1; (i * this.xUnitary) > this.minX ; --i) {
 						this.ctx.beginPath() ;
 						this.ctx.moveTo(this.xRealCoord(i * this.xUnitary),this.yRealCoord(0)-5) ;
@@ -353,7 +370,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 					}
 					this.ctx.restore() ;
 				};
-				//Draw the training set in the canvas
+				/**
+				 * Draw the different training sets of points in the canvas.
+				 * @param trainingSets Set of at least two sets that is going to be draw in the canvas.
+				 */
 				this.drawTrainingSet = function (trainingSets) {
 					for (var i = 0; i < trainingSets.length; i++){
 						for(var j = 0; j < trainingSets[i].points.length; j++){
@@ -361,12 +381,16 @@ var PerceptronClass = function Perceptron (idCanvas){
 						}
 					}
 				};
-				//Draw point
+				/**
+				 * Draw a point in the canvas
+				 * @param x The position in the ordinate axes.
+				 * @param y The position in the abscissa axes.
+				 * @param set The set where the point belongs.
+				 */
 				this.drawPoint = function(x, y, set){
 					switch (set) {
-						case 0:
+						case 0: //First set
 							this.ctx.fillStyle   = '#00f'; // blue
-							//this.ctx.fillRect(this.xRealCoord(x), this.yRealCoord(y), 4, 4);
 							this.ctx.beginPath();
 							this.ctx.arc(this.xRealCoord(x), this.yRealCoord(y), 2, 0, Math.PI*2, true); 
 							this.ctx.closePath();
@@ -374,9 +398,8 @@ var PerceptronClass = function Perceptron (idCanvas){
 							this.ctx.fillStyle = '#000'; // black
 							this.ctx.fillText(('(' + x + ',' + y + ')'), this.xRealCoord(x), this.yRealCoord(y) + 10);
 							break;
-						case 1:
+						case 1: //Second set
 							this.ctx.fillStyle = '#f00'; // red
-							//this.ctx.fillRect(this.xRealCoord(x), this.yRealCoord(y), 4, 4);
 							this.ctx.beginPath();
 							this.ctx.arc(this.xRealCoord(x), this.yRealCoord(y), 2, 0, Math.PI*2, true); 
 							this.ctx.closePath();
@@ -386,7 +409,10 @@ var PerceptronClass = function Perceptron (idCanvas){
 							break;
 					}
 				};
-				//Draw the function in the canvas
+				/**
+				 * Draw the function that separate the points in the canvas.
+				 * @param context Object that contains the function (context.f(x)).
+				 */
 				this.drawFunction = function() {
 					var first = true;
 					//Horizontal distance between points
@@ -404,7 +430,11 @@ var PerceptronClass = function Perceptron (idCanvas){
 					}
 					this.ctx.stroke() ;
 				};
-				//Mouse click on the canvas
+				/**
+				 * Draw the point where the user click
+				 * @param canvas The canvas where we draw.
+				 * @param e The mouse event that contains the coordinates of the mouse and if it was clicked with the right or the left button.
+				 */
 				this.mouseClick = function(canvas, e){
 					var rect = canvas.getBoundingClientRect();
 					var x = Math.round((((e.clientX - rect.left)*(this.maxX - this.minX)/this.width + this.minX)));
@@ -425,7 +455,9 @@ var PerceptronClass = function Perceptron (idCanvas){
 			             }
 					}
 				};
-				//Initialize the canvas when the document is ready
+				/**
+				 * Instance the canvas when the document is fully charged
+				 */
 				this.onload = function () {
 					this.canvas = document.getElementById(Perceptron.canvasId);
 					this.canvas.addEventListener('mousedown', new Perceptron.classes.Proxy(this, function(e) {
@@ -438,7 +470,9 @@ var PerceptronClass = function Perceptron (idCanvas){
 					this.ctx = this.canvas.getContext('2d');
 					Perceptron.notify();
 				};
-				//Init function
+				/**
+				 * Initialize all the variables that are needed to draw when the change and redraw the axes.
+				 */
 				this.initScale = function () {
 					this.width = this.canvas.width;
 					this.height = this.canvas.height;
@@ -478,6 +512,12 @@ var PerceptronHelperClass = function () {
 			error.innerText = "";
 			error.style.display = "none";
 		},
+		/**
+		 * Change the result values in the html.
+		 * @param omega1 
+		 * @param omega2
+		 * @param theta
+		 */
 		resetResultValues : function(omega1, omega2, theta){
 			document.getElementById("omega1").innerHTML = omega1;
 			document.getElementById("omega2").innerHTML = omega2;
