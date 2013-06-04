@@ -73,9 +73,19 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * Performs the training process of the neural network.
 		 * It is a shortcut fot perceptronTraining.
 		 */
-		train: function () {
+		train: function (learningReason, maxIterations) {
+			if(learningReason > 1 || learningReason < 0){
+				PerceptronHelper.showError("El valor de aprendizaje ha de estar en el intervalo [0,1]");
+				return this;
+			}
+			if(maxIterations <= 0){
+				PerceptronHelper.showError("El número máximo de iteraciones ha de ser mayor que 0");
+				return this;
+			}
+			PerceptronHelper.cleanError();
 			PerceptronHelper.smoothScroll('results');
-			this.perceptronTraining.train();
+			var button = document.getElementById("stopButton");
+			this.perceptronTraining.train(learningReason, maxIterations);
 			return this;
 		},
 		/**
@@ -99,9 +109,21 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
-			this.canvas.initScale();
-			this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
-			this.canvas.drawFunction();
+			var values = {
+				weights : Perceptron.weights.slice(0),
+				theta : Perceptron.theta,
+				learningReason : Perceptron.perceptronTraining.learningReason,
+				currentIteration : Perceptron.perceptronTraining.currentIteration,
+				f : function(x) {
+					return (this.theta - x * this.weights[0])/this.weights[1];
+				}
+			};
+			Perceptron.queue.add(function(){
+				PerceptronHelper.resetResultValues(values.weights[0], values.weights[1], values.theta, values.learningReason, values.currentIteration);
+				this.canvas.initScale();
+				this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
+				this.canvas.drawFunction(values);
+			}, this);
 		},
 		queue : {
 		    timer: null,
@@ -113,7 +135,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 		                if (this.queue.length) {
 		                    setTimer(time);
 		                }
-		            }), time || 300);
+		            }), time || 100);
 		        });
 
 		        if (fn) {
@@ -211,48 +233,49 @@ var PerceptronClass = function Perceptron (idCanvas){
 				this.expectedGroupOutputs = expectedOutputs;
 				//The neural function
 				this.neuralFunction = neuralFunction,
+				//The initial iteration is 0
+				this.currentIteration = 0;
 				//Train the data of the perceptron
-				this.train = function () {
+				this.train = function (learningReason, maxIterations) {
+					//Set input parameters
+					this.learningReason = learningReason;
+					this.maxIterations = maxIterations;
 					//The initial iteration is 0
-					var currentIteration = 0;
+					this.currentIteration = 0;
 					var maxValuesToCheck = 0;
 					//Get the max number of points to check
 					for (var i = 0; i < this.trainingSets.length; i++){
 						maxValuesToCheck += this.trainingSets[i].points.length;
 					}
 					//Set the current values to the max possible
-					var currentValuesToCheck = maxValuesToCheck;
+					var currentValuesToCheck = maxValuesToCheck + 1;
 					//Start checking all the values to see if they belong to the correct
 					//group
 					var position = 0;
 					var group = 0;
 					var decrementLearningReason = this.learningReason/this.maxIterations;
 					Perceptron.notify();
-					for (; currentIteration < this.maxIterations && currentValuesToCheck > 0; currentValuesToCheck--){
+					for (; this.currentIteration < this.maxIterations && currentValuesToCheck > 0; currentValuesToCheck--){
 						//Get the training set
 						var groupSet = this.trainingSets[group].points;
 						//Perform the calculus of the impulse
 						var impulse = this.weightOperation(groupSet[position]);
 						//Check the output of the neuron to check the group it belongs to
 						if (this.expectedGroupOutputs[group] != this.neuralFunction.runCalculus(impulse)){
-								Perceptron.queue.add(function(){
 								//Adjust the neuron weights
 								this.adjust(groupSet[position], this.expectedGroupOutputs[group]);
-								//Notify the user interface
-								Perceptron.notify();
 								//Reset the counter
-								currentValuesToCheck = maxValuesToCheck;
-								}, this);
+								currentValuesToCheck = maxValuesToCheck + 1;
 						}
 						//Increment index
 						position++;
+						this.currentIteration++;
+						this.learningReason -= decrementLearningReason;
+						//Notify the user interface
+						Perceptron.notify();
 						if (position >= groupSet.length){
 							group = (group + 1) % Perceptron.dimensions;
 							position = 0;
-							if(group == 0){
-								currentIteration++;
-								this.learningReason -= decrementLearningReason;
-							}
 						}
 					}
 				};
@@ -269,10 +292,6 @@ var PerceptronClass = function Perceptron (idCanvas){
 						result += point.coordinates[i] * Perceptron.weights[i];
 					result += Perceptron.theta * -1;
 					return result;
-				};
-				//2D Function with the current weights
-				this.f = function(x){
-					return (Perceptron.theta - x*Perceptron.weights[0])/Perceptron.weights[1];
 				};
 			},
 			Proxy : function(object, functionProxy){
@@ -405,14 +424,14 @@ var PerceptronClass = function Perceptron (idCanvas){
 					}
 				};
 				//Draw the function in the canvas
-				this.drawFunction = function() {
+				this.drawFunction = function(context) {
 					var first = true;
 					//Horizontal distance between points
 					var XSTEP = (this.maxX-this.minX)/this.width ;
 					this.ctx.fillStyle = '#a83f'; // black
 					this.ctx.beginPath() ;
 					for (var x = this.minX; x <= this.maxX; x += XSTEP) {
-						var y = Perceptron.perceptronTraining.f(x) ;
+						var y = context.f(x) ;
 						if (first) {
 							this.ctx.moveTo(this.xRealCoord(x),this.yRealCoord(y)) ;
 							first = false ;
@@ -429,7 +448,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 					var y = Math.round(-1*(e.clientY -rect.top)*(this.maxY - this.minY)/this.height + this.maxY);
 					var point = new Perceptron.classes.Point(new Array(x,y));
 					if(!(Perceptron.perceptronTraining.trainingSets[0].contains(point) || Perceptron.perceptronTraining.trainingSets[1].contains(point))){
-						switch (event.which) {
+						switch (e.which) {
 						 	case 1: //Left button
 								Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],0);
 								Perceptron.addPointToTrainingSet(point,0);
@@ -495,6 +514,13 @@ var PerceptronHelperClass = function () {
 			var error = document.getElementById("errorMsg");
 			error.innerText = "";
 			error.style.display = "none";
+		},
+		resetResultValues : function(omega1, omega2, theta, gamma, currentIteration){
+			document.getElementById("omega1").innerText = omega1;
+			document.getElementById("omega2").innerText = omega2;
+			document.getElementById("theta").innerText = theta;
+			document.getElementById("gamma").innerText = gamma;
+			document.getElementById("iteration").innerText = currentIteration;
 		},
 		currentYPosition: function() {
 			if (self.pageYOffset)
