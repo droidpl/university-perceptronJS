@@ -213,6 +213,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 						if (position >= groupSet.length){
 							group = (group + 1) % Perceptron.dimensions;
 							position = 0;
+							if(group == 0){currentIteration++;}
 						}
 					}
 				};
