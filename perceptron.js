@@ -56,6 +56,8 @@ var PerceptronClass = function Perceptron (idCanvas){
 				);
 			// Initialize the canvas
 			this.canvas = new this.classes.Canvas();
+			//On load function
+			window.onload = new this.classes.Proxy(this.canvas, this.canvas.onload);
 			// Initialize the weights with random values and the pointsets
 			for (var i = 0; i < this.dimensions; i++){
 				this.weights.push(Math.random());
@@ -97,9 +99,9 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 */
 		notify : function(){
 			canvas.reset();
-			canvas.DrawAxes();
+			canvas.drawAxes();
 			canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
-			canvas.DrawFunction();
+			canvas.drawFunction();
 		},
 		/********************************************
 		 * FUNCTION (CLASSES) 
@@ -219,135 +221,101 @@ var PerceptronClass = function Perceptron (idCanvas){
 					return result;
 				};
 			},
+			Proxy : function(object, functionProxy){
+				return function(){
+					return functionProxy.apply(object, arguments);
+				};
+			},
 			Canvas : function () {
 				//The document canvas where we draw
-				var Canvas = false; 
+				this.canvas = false; 
 				//Instance of 2D canvas that helps to draw
-				var Ctx = false ;
+				this.ctx = false ;
 				//The width of the canvas element
-				var width = false ;
+				this.width = false ;
 				//The height of the canvas element
-				var height = false ;
+				this.height = false ;
 				//Minimum distance between X points
-				var XUnitary = 1;
+				this.xUnitary = 1;
 				//Minimum distance between Y points
-				var YUnitary = 1;
+				this.yUnitary = 1;
 				// Returns the right boundary of the logical viewport
-				this.MaxX = function() {
-					return 10 ;
-				};
+				this.maxX = 10;
 				// Returns the left boundary of the logical viewport
-				this.MinX = function() {
-					return -10 ;
-				};
+				this.minX = -10;
 				// Returns the top boundary of the logical viewport
-				this.MaxY = function() {
-					return this.MaxX() * this.height / this.width;
-				};
+				this.maxY = 0;
 				// Returns the bottom boundary of the logical viewport
-				this.MinY = function() {
-					return this.MinX() * this.height / this.width;
-				};
+				this.minY = 0;
 				// Returns the physical x-coordinate of a logical x-coordinate
-				this.XRealCoord = function(x) {
-					return (x - this.MinX()) / (this.MaxX() - this.MinX()) * this.width ;
+				this.xRealCoord = function(x) {
+					return (x - this.minX) / (this.maxX - this.minX) * this.width ;
 				};
-				// Returns the physical y-coordinate of a logical y-coordinate
-				this.YRealCoord = function(y) {
-					return this.height - (y - this.MinY()) / (this.MaxY() - this.MinY()) * this.height ;
-				};
-				// Returns the logical x-coordinate of a physical x-coordinate a mouse click
-				this.XLogicalCoord = function(x) {
-					var canvas = Perceptron.canvas.Canvas;
-//					var stylePaddingLeft = parseInt(window.getComputedStyle(canvas)['paddingLeft'], 10) || 0;
-//					var styleBorderLeft = parseInt(window.getComputedStyle(canvas)['borderLeftWidth'], 10) || 0;
-					var html = document.body.parentNode;
-					var htmlLeft = html.offsetLeft;
-					var offsetX = 0;
-//					if (canvas.offsetParent != undefined) {
-//				        do {
-//				            offsetX += canvas.offsetLeft;
-//				        } while ((canvas = canvas.offsetParent));
-//				    }
-					return x*(this.MaxX() - this.MinX())/this.width + this.MaxX() - (offsetX /* + stylePaddingLeft + styleBorderLeft*/ + htmlLeft);
-				};
-				// Returns the logical y-coordinate of a physical y-coordinate of a mouse click
-				this.YLogicalCoord = function(y) {
-					var canvas = Perceptron.canvas.Canvas;
-//					var stylePaddingTop = parseInt(window.getComputedStyle(canvas)['paddingTop'], 10) || 0;
-//					var styleBorderTop = parseInt(window.getComputedStyle(canvas)['borderTopWidth'], 10) || 0;
-					var html = document.body.parentNode;
-					var htmlTop = html.offsetTop;
-					var offsetY = 0;
-//					if (canvas.offsetParent !== undefined) {
-//				        do {
-//				            offsetY += canvas.offsetTop;
-//				        } while ((canvas = canvas.offsetParent));
-//				    }
-					return (y - this.height)*(this.MaxY() - this.MinY())/this.height + this.MinY() - (offsetY/* + stylePaddingTop + styleBorderTop */+ htmlTop);
+				this.yRealCoord = function(y) {
+					return this.height - (y - this.minY) / (this.maxY - this.minY) * this.height ;
 				};
 				//Reset the canvas
 				this.reset = function () {
-					this.Ctx.clearRect(0,0,this.width,this.height) ;
+					this.ctx.clearRect(0,0,this.width,this.height) ;
 				};
 				//Draw the axes X and Y of the canvas
-				this.DrawAxes = function() {
-					this.Ctx.save() ;
-					this.Ctx.lineWidth = 2 ;
+				this.drawAxes = function() {
+					this.ctx.save() ;
+					this.ctx.lineWidth = 2 ;
 					// +Y axis
-					this.Ctx.beginPath() ;
-					this.Ctx.moveTo(this.XRealCoord(0),this.YRealCoord(0)) ;
-					this.Ctx.lineTo(this.XRealCoord(0),this.YRealCoord(this.MaxY())) ;
-					this.Ctx.stroke() ;
+					this.ctx.beginPath() ;
+					this.ctx.moveTo(this.xRealCoord(0),this.yRealCoord(0)) ;
+					this.ctx.lineTo(this.xRealCoord(0),this.yRealCoord(this.maxY)) ;
+					this.ctx.stroke() ;
 
 					// -Y axis
-					this.Ctx.beginPath() ;
-					this.Ctx.moveTo(this.XRealCoord(0),this.YRealCoord(0)) ;
-					this.Ctx.lineTo(this.XRealCoord(0),this.YRealCoord(this.MinY())) ;
-					this.Ctx.stroke() ;
+					this.ctx.beginPath() ;
+					this.ctx.moveTo(this.xRealCoord(0),this.yRealCoord(0)) ;
+					this.ctx.lineTo(this.xRealCoord(0),this.yRealCoord(this.minY)) ;
+					this.ctx.stroke() ;
 
 					// Y axis tick marks
-					for (var i = 1; (i * this.YUnitary) < this.MaxY() ; ++i) {
-						this.Ctx.beginPath() ;
-						this.Ctx.moveTo(this.XRealCoord(0) - 5,this.YRealCoord(i * this.YUnitary)) ;
-						this.Ctx.lineTo(this.XRealCoord(0) + 5,this.YRealCoord(i * this.YUnitary)) ;
-						this.Ctx.stroke() ;  
+					for (var i = 1; (i * this.yUnitary) < this.maxY ; ++i) {
+						this.ctx.beginPath() ;
+						this.ctx.moveTo(this.xRealCoord(0) - 5,this.yRealCoord(i * this.yUnitary)) ;
+						this.ctx.lineTo(this.xRealCoord(0) + 5,this.yRealCoord(i * this.yUnitary)) ;
+						this.ctx.stroke() ;  
 					}
 
-					for (var i = 1; (i * this.YUnitary) > this.MinY() ; --i) {
-						this.Ctx.beginPath() ;
-						this.Ctx.moveTo(this.XRealCoord(0) - 5,this.YRealCoord(i * this.YUnitary)) ;
-						this.Ctx.lineTo(this.XRealCoord(0) + 5,this.YRealCoord(i * this.YUnitary)) ;
-						this.Ctx.stroke() ;  
+					for (var i = 1; (i * this.yUnitary) > this.minY ; --i) {
+						this.ctx.beginPath() ;
+						this.ctx.moveTo(this.xRealCoord(0) - 5,this.yRealCoord(i * this.yUnitary)) ;
+						this.ctx.lineTo(this.xRealCoord(0) + 5,this.yRealCoord(i * this.yUnitary)) ;
+						this.ctx.stroke() ;  
 					}  
 
 					// +X axis
-					this.Ctx.beginPath() ;
-					this.Ctx.moveTo(this.XRealCoord(0),this.YRealCoord(0)) ;
-					this.Ctx.lineTo(this.XRealCoord(this.MaxX()),this.YRealCoord(0)) ;
-					this.Ctx.stroke() ;
+					this.ctx.beginPath() ;
+					this.ctx.moveTo(this.xRealCoord(0),this.yRealCoord(0)) ;
+					this.ctx.lineTo(this.xRealCoord(this.maxX),this.yRealCoord(0)) ;
+					this.ctx.stroke() ;
 
 					// -X axis
-					this.Ctx.beginPath() ;
-					this.Ctx.moveTo(this.XRealCoord(0),this.YRealCoord(0)) ;
-					this.Ctx.lineTo(this.XRealCoord(this.MinX()),this.YRealCoord(0)) ;
-					this.Ctx.stroke() ;
+					this.ctx.beginPath() ;
+					this.ctx.moveTo(this.xRealCoord(0),this.yRealCoord(0)) ;
+					this.ctx.lineTo(this.xRealCoord(this.minX),this.yRealCoord(0)) ;
+					this.ctx.stroke() ;
 
 					// X tick marks
-					for (var i = 1; (i * this.XUnitary) < this.MaxX() ; ++i) {
-						this.Ctx.beginPath() ;
-						this.Ctx.moveTo(this.XRealCoord(i * this.XUnitary),this.YRealCoord(0)-5) ;
-						this.Ctx.lineTo(this.XRealCoord(i * this.XUnitary),this.YRealCoord(0)+5) ;
-						this.Ctx.stroke() ;  
+					for (var i = 1; (i * this.xUnitary) < this.maxX ; ++i) {
+						this.ctx.beginPath() ;
+						this.ctx.moveTo(this.xRealCoord(i * this.xUnitary),this.yRealCoord(0)-5) ;
+						this.ctx.lineTo(this.xRealCoord(i * this.xUnitary),this.yRealCoord(0)+5) ;
+						this.ctx.stroke() ;  
 					}
 
-					for (var i = 1; (i * this.XUnitary) > this.MinX() ; --i) {
-						this.Ctx.beginPath() ;
-						this.Ctx.moveTo(this.XRealCoord(i * this.XUnitary),this.YRealCoord(0)-5) ;
-						this.Ctx.lineTo(this.XRealCoord(i * this.XUnitary),this.YRealCoord(0)+5) ;
-						this.Ctx.stroke() ;  
+					for (var i = 1; (i * this.xUnitary) > this.minX ; --i) {
+						this.ctx.beginPath() ;
+						this.ctx.moveTo(this.xRealCoord(i * this.xUnitary),this.yRealCoord(0)-5) ;
+						this.ctx.lineTo(this.xRealCoord(i * this.xUnitary),this.yRealCoord(0)+5) ;
+						this.ctx.stroke() ;  
 					}
-					this.Ctx.restore() ;
+					this.ctx.restore() ;
 				};
 				//Draw the training set in the canvas
 				this.drawTrainingSet = function (trainingSets) {
@@ -356,78 +324,83 @@ var PerceptronClass = function Perceptron (idCanvas){
 					}
 				};
 				//Draw point
-				this.drawPoint = function(x,y,set){
+				this.drawPoint = function(x, y, set){
 					switch (set) {
 						case 0:
-							this.Ctx.fillStyle   = '#00f'; // blue
-							this.Ctx.fillRect(this.XRealCoord(x), this.YRealCoord(y), 2, 2);
-							this.Ctx.fillStyle = '#000'; // black
-							this.Ctx.fillText((x + ',' + y), this.XRealCoord(x), this.YRealCoord(y) + 10);
+							this.ctx.fillStyle   = '#00f'; // blue
+							//this.ctx.fillRect(this.xRealCoord(x), this.yRealCoord(y), 4, 4);
+							this.ctx.beginPath();
+							this.ctx.arc(this.xRealCoord(x), this.yRealCoord(y), 2, 0, Math.PI*2, true); 
+							this.ctx.closePath();
+							this.ctx.fill();
+							this.ctx.fillStyle = '#000'; // black
+							this.ctx.fillText(('(' + x + ',' + y + ')'), this.xRealCoord(x), this.yRealCoord(y) + 10);
 							break;
 						case 1:
-							this.Ctx.fillStyle = '#f00'; // red
-							this.Ctx.fillRect(this.XRealCoord(x), this.YRealCoord(y), 2, 2);
-							this.Ctx.fillStyle = '#000'; // black
-							this.Ctx.fillText((x + ',' + y), this.XRealCoord(x), this.YRealCoord(y) + 10);
+							this.ctx.fillStyle = '#f00'; // red
+							//this.ctx.fillRect(this.xRealCoord(x), this.yRealCoord(y), 4, 4);
+							this.ctx.beginPath();
+							this.ctx.arc(this.xRealCoord(x), this.yRealCoord(y), 2, 0, Math.PI*2, true); 
+							this.ctx.closePath();
+							this.ctx.fill();
+							this.ctx.fillStyle = '#000'; // black
+							this.ctx.fillText(('(' + x + ',' + y + ')'), this.xRealCoord(x), this.yRealCoord(y) + 10);
 							break;
 					}
 				};
 				//Draw the function in the canvas
-				this.DrawFunction = function() {
+				this.drawFunction = function() {
 					var first = true;
 					//Horizontal distance between points
-					var XSTEP = (this.MaxX()-this.MinX())/this.width ;
+					var XSTEP = (this.maxX-this.minX)/this.width ;
 					
-					this.Ctx.beginPath() ;
-					for (var x = this.MinX(); x <= this.MaxX(); x += XSTEP) {
+					this.ctx.beginPath() ;
+					for (var x = this.minX; x <= this.maxX; x += XSTEP) {
 						var y = Perceptron.perceptronTraining.weightOperation(x) ;
 						if (first) {
-							this.Ctx.moveTo(this.XRealCoord(x),this.YRealCoord(y)) ;
+							this.ctx.moveTo(this.xRealCoord(x),this.yRealCoord(y)) ;
 							first = false ;
 						} else {
-							this.Ctx.lineTo(this.XRealCoord(x),this.YRealCoord(y)) ;
+							this.ctx.lineTo(this.xRealCoord(x),this.yRealCoord(y)) ;
 						}
 					}
-					this.Ctx.stroke() ;
+					this.ctx.stroke() ;
 				};
 				//Mouse click on the canvas
-				this.mouseClick = function(canvas,e){
+				this.mouseClick = function(canvas, e){
 					var rect = canvas.getBoundingClientRect();
-					var myx = Math.round(((e.clientX - rect.left)*(Perceptron.canvas.MaxX())/canvas.width) + ((e.clientX - rect.left)*(Perceptron.canvas.MaxX())/canvas.width) );
-					var myy = Math.round(-1*(e.clientY -rect.top)*Perceptron.canvas.MaxY()/canvas.height + Perceptron.canvas.MaxY());
-					var point = new Perceptron.classes.Point({
-						 x:myx,
-						 y:myy
-					 });
-					alert(point.coordinates.x + "    " + point.coordinates.y);
-					 switch (event.which) {
+					var x = Math.round((((e.clientX - rect.left)*(this.maxX - this.minX)/this.width + this.minX)));
+					var y = Math.round(-1*(e.clientY -rect.top)*(this.maxY - this.minY)/this.height + this.maxY);
+					var point = new Perceptron.classes.Point(new Array(x,y));
+					switch (event.which) {
 					 	case 1: //Left button
-							Perceptron.canvas.drawPoint(point.coordinates.x,point.coordinates.y,0);
+							Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],0);
 							Perceptron.addPointToTrainingSet(point,0);
 		                    break;
 		                case 2: //Middle button
 		                    break;
 		                case 3://Right button
-							Perceptron.canvas.drawPoint(point.coordinates.x,point.coordinates.y,1);
+							Perceptron.canvas.drawPoint(point.coordinates[0],point.coordinates[1],1);
 							Perceptron.addPointToTrainingSet(point,1);
 		                    break;
 		             }
 				};
 				//Initialize the canvas when the document is ready
-				window.onload = function (){
-					var canvas = Perceptron.canvas.Canvas;
-					canvas = document.getElementById(Perceptron.canvasId);
-					canvas.addEventListener('mousedown',  function(e) {
-						Perceptron.canvas.mouseClick(canvas,e);
-					},false);
-					canvas.addEventListener('contextmenu', function(e) { //Block right button menu
+				this.onload = function () {
+					this.canvas = document.getElementById(Perceptron.canvasId);
+					this.canvas.addEventListener('mousedown', new Perceptron.classes.Proxy(this, function(e) {
+						this.mouseClick(this.canvas, e);
+					}),false);
+					this.canvas.addEventListener('contextmenu', function(e) { //Block right button menu
 						e.preventDefault();
 						return false;
 					}, false);
-					Perceptron.canvas.Ctx = canvas.getContext('2d');
-					Perceptron.canvas.width = canvas.width;
-					Perceptron.canvas.height = canvas.height;
-					Perceptron.canvas.DrawAxes();
+					this.ctx = this.canvas.getContext('2d');
+					this.width = this.canvas.width;
+					this.height = this.canvas.height;
+					this.maxY = this.maxX * this.height / this.width;
+					this.minY = this.minX * this.height / this.width;
+					this.drawAxes();
 				};
 			}
 		}
