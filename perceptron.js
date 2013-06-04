@@ -74,7 +74,6 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * It is a shortcut fot perceptronTraining.
 		 */
 		train: function () {
-			
 			this.perceptronTraining.train();
 			return this;
 		},
@@ -99,11 +98,12 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
-			setTimeout(new this.classes.Proxy(this, function(){
-				this.canvas.initScale();
-				this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
-				this.canvas.drawFunction();
-			}), 500);
+			var that = this;
+			setTimeout(function(){
+				that.canvas.initScale();
+				that.canvas.drawTrainingSet(that.perceptronTraining.trainingSets);
+				that.canvas.drawFunction();
+			}, 1000);
 		},
 		/********************************************
 		 * FUNCTION (CLASSES) 
@@ -281,7 +281,6 @@ var PerceptronClass = function Perceptron (idCanvas){
 				};
 				//Draw the axes X and Y of the canvas
 				this.drawAxes = function() {
-					this.reset();
 					this.ctx.save() ;
 					this.ctx.lineWidth = 2 ;
 					// +Y axis
@@ -430,6 +429,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 					this.height = this.canvas.height;
 					this.maxY = this.maxX * this.height / this.width;
 					this.minY = this.minX * this.height / this.width;
+					this.reset();
 					this.drawAxes();
 				};
 			}
