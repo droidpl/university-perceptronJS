@@ -219,9 +219,9 @@ var PerceptronClass = function Perceptron (idCanvas){
 				};
 				this.adjust = function (point, expectedOutput) {
 					for (var i = 0; i < point.length; i++){
-						Perceptron.weights[i] += Perceptron.weights[i] * expectedOutput * point.coordinates[i];
+						Perceptron.weights[i] += this.learningReason * expectedOutput * point.coordinates[i];
 					}
-					Perceptron.theta += Perceptron.theta * expectedOutput * (-1);
+					Perceptron.theta += this.learningReason * expectedOutput * (-1);
 				};
 				//Performs the weight operation
 				this.weightOperation = function (point) {
