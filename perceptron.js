@@ -234,11 +234,11 @@ var PerceptronClass = function Perceptron (idCanvas){
 				var YUnitary = 1;
 				// Returns the right boundary of the logical viewport
 				this.MaxX = function() {
-					return 40 ;
+					return 10 ;
 				};
 				// Returns the left boundary of the logical viewport
 				this.MinX = function() {
-					return -40 ;
+					return -10 ;
 				};
 				// Returns the top boundary of the logical viewport
 				this.MaxY = function() {
@@ -393,11 +393,13 @@ var PerceptronClass = function Perceptron (idCanvas){
 				//Mouse click on the canvas
 				this.mouseClick = function(canvas,e){
 					var rect = canvas.getBoundingClientRect();
-					alert(-1*(e.clientY - rect.top) - Perceptron.canvas.MaxY());
+					var myx = Math.round(((e.clientX - rect.left)*(Perceptron.canvas.MaxX())/canvas.width) + ((e.clientX - rect.left)*(Perceptron.canvas.MaxX())/canvas.width) );
+					var myy = Math.round(-1*(e.clientY -rect.top)*Perceptron.canvas.MaxY()/canvas.height + Perceptron.canvas.MaxY());
 					var point = new Perceptron.classes.Point({
-						 x:e.clientX - rect.left - Perceptron.canvas.MaxX(),
-						 y:-1*(e.clientY -rect.top - Perceptron.canvas.MaxY())
+						 x:myx,
+						 y:myy
 					 });
+					alert(point.coordinates.x + "    " + point.coordinates.y);
 					 switch (event.which) {
 					 	case 1: //Left button
 							Perceptron.canvas.drawPoint(point.coordinates.x,point.coordinates.y,0);
