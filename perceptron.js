@@ -99,12 +99,42 @@ var PerceptronClass = function Perceptron (idCanvas){
 		 * whatever interested on it.
 		 */
 		notify : function(){
-			var that = this;
-			setTimeout(function(){
-				that.canvas.initScale();
-				that.canvas.drawTrainingSet(that.perceptronTraining.trainingSets);
-				that.canvas.drawFunction();
-			}, 1000);
+			this.canvas.initScale();
+			this.canvas.drawTrainingSet(this.perceptronTraining.trainingSets);
+			this.canvas.drawFunction();
+		},
+		queue : {
+		    timer: null,
+		    queue: [],
+		    add: function(fn, context, time) {
+		        var setTimer = new Perceptron.classes.Proxy(this, function(time) {
+		            this.timer = setTimeout(new Perceptron.classes.Proxy(this, function() {
+		                time = this.add();
+		                if (this.queue.length) {
+		                    setTimer(time);
+		                }
+		            }), time || 300);
+		        });
+
+		        if (fn) {
+		            this.queue.push([fn, context, time]);
+		            if (this.queue.length == 1) {
+		                setTimer(time);
+		            }
+		            return;
+		        }
+
+		        var next = this.queue.shift();
+		        if (!next) {
+		            return 0;
+		        }
+		        next[0].call(next[1] || window);
+		        return next[2];
+		    },
+		    clear: function() {
+		        clearTimeout(this.queue.timer);
+		        this.queue = [];
+		    }
 		},
 		/********************************************
 		 * FUNCTION (CLASSES) 
@@ -174,7 +204,7 @@ var PerceptronClass = function Perceptron (idCanvas){
 				//Gamma value that represents the learning reason
 				this.learningReason = 1;
 				//Max number of iterations
-				this.maxIterations = 100;
+				this.maxIterations = 1000;
 				//The training sets
 				this.trainingSets = new Array ();
 				// Expected output for the training sets
@@ -205,12 +235,14 @@ var PerceptronClass = function Perceptron (idCanvas){
 						var impulse = this.weightOperation(groupSet[position]);
 						//Check the output of the neuron to check the group it belongs to
 						if (this.expectedGroupOutputs[group] != this.neuralFunction.runCalculus(impulse)){
-							//Adjust the neuron weights
-							this.adjust(groupSet[position], this.expectedGroupOutputs[group]);
-							//Notify the user interface
-							Perceptron.notify();
-							//Reset the counter
-							currentValuesToCheck = maxValuesToCheck;
+								Perceptron.queue.add(function(){
+								//Adjust the neuron weights
+								this.adjust(groupSet[position], this.expectedGroupOutputs[group]);
+								//Notify the user interface
+								Perceptron.notify();
+								//Reset the counter
+								currentValuesToCheck = maxValuesToCheck;
+								}, this);
 						}
 						//Increment index
 						position++;
