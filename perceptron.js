@@ -269,6 +269,8 @@ var PerceptronClass = function Perceptron (idCanvas, queueSpeed){
 			PerceptronTraining : function (expectedOutputs, neuralFunction) {
 				//Gamma value that represents the learning reason
 				this.learningReason = 1;
+				//Indicates if the learing produces cooling
+				this.coolLearning = true;
 				//Max number of iterations
 				this.maxIterations = 1000;
 				//The training sets
@@ -316,7 +318,7 @@ var PerceptronClass = function Perceptron (idCanvas, queueSpeed){
 							currentValuesToCheck = maxValuesToCheck + 1;
 						}
 						//Decrement learning reason (if < 0 -> = 0)
-						this.learningReason -= decrementLearningReason;
+						if (this.coolLearning) this.learningReason -= decrementLearningReason;
 						if (this.learningReason < 0) this.learningReason = 0;
 						//Notify the user interface each iteration
 						Perceptron.notify();
@@ -743,6 +745,7 @@ var PerceptronHelperClass = function () {
 			var learningReason = document.getElementById('learningIndex').value;
 			var maxIterations = document.getElementById('iterationNumber').value;
 			var speed = document.getElementById('speed').value;
+			var coolLearning = document.getElementById('coolLearning');
 			if (!this.checkScale()){
 				return Perceptron;
 			}
@@ -766,6 +769,12 @@ var PerceptronHelperClass = function () {
 				return Perceptron;
 			}else{
 				Perceptron.iterationSpeed = speed;
+			}
+			//Check cool learning
+			if(coolLearning.checked){
+				Perceptron.perceptronTraining.coolLearning = true;
+			}else{
+				Perceptron.perceptronTraining.coolLearning = false;
 			}
 			//Check perceptron points is not empty
 			for(var i = 0; i < Perceptron.perceptronTraining.trainingSets.length; i++){
