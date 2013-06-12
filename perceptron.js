@@ -262,9 +262,9 @@ var PerceptronClass = function Perceptron (idCanvas, queueSpeed){
 				this.coordinates = arrayOfCoordinates;
 			},
 			/**
-			 * 
-			 * @param expectedOutputs
-			 * @param neuralFunction
+			 * The part of the perceptron that trains all the values and executes the algorithm.
+			 * @param expectedOutputs outputs that are expected for this graphic.
+			 * @param neuralFunction the output function of the perceptron.
 			 */
 			PerceptronTraining : function (expectedOutputs, neuralFunction) {
 				//Gamma value that represents the learning reason
@@ -335,9 +335,11 @@ var PerceptronClass = function Perceptron (idCanvas, queueSpeed){
 				};
 				/**
 				 * Adjustment operations for weights and theta. This can be considered as the learning function
-				 * w1 = w1 + var(w1) -> var(w1) = gamma * d1 * w1
-				 * w2 = w2 + var(w2) -> var(w2) = gamma * d2 * w2
+				 * w1 = w1 + var(w1) -> var(w1) = gamma * d1 * x
+				 * w2 = w2 + var(w2) -> var(w2) = gamma * d2 * y
 				 * theta = theta + var(theta) -> var(theta) = gamma * theta * -1
+				 * @param point	The point to adjust.
+				 * @param expectedOutput The expected output for this point.
 				 */
 				this.adjust = function (point, expectedOutput) {
 					for (var i = 0; i < point.length; i++){
